@@ -43,8 +43,3 @@ The plugin jar is generated in `target/`.
 - `sounds.*`: enable/disable and customize click/success/error sounds with volume/pitch.
 
 If config values are missing or invalid, AzDown auto-repairs them and saves corrected values.
-
-
-## Codespaces / Maven 4 note
-If you use Maven 4 in Codespaces, run `mvn clean package` (not `mvn install package`).
-This repo includes `.mvn/maven.config` to disable remote repository prefix filtering, which can otherwise block Paper dependencies with errors like `Prefix ... NOT allowed`.
