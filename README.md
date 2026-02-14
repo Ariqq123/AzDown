@@ -17,7 +17,7 @@ AzDown is a modern Paper plugin that lets players browse plugin providers from a
 
 ## Build
 ```bash
-mvn package
+mvn clean package
 ```
 
 The plugin jar is generated in `target/`.
