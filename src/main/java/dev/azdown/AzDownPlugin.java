@@ -10,6 +10,15 @@ import java.time.Duration;
 import java.util.Objects;
 
 public final class AzDownPlugin extends JavaPlugin {
+    private static final String LOGO = """
+            \n░█████╗░███████╗██████╗░░█████╗░░██╗░░░░░░░██╗███╗░░██╗
+            ██╔══██╗╚════██║██╔══██╗██╔══██╗░██║░░██╗░░██║████╗░██║
+            ███████║░░███╔═╝██║░░██║██║░░██║░╚██╗████╗██╔╝██╔██╗██║
+            ██╔══██║██╔══╝░░██║░░██║██║░░██║░░████╔═████║░██║╚████║
+            ██║░░██║███████╗██████╔╝╚█████╔╝░░╚██╔╝░╚██╔╝░██║░╚███║
+            ╚═╝░░╚═╝╚══════╝╚═════╝░░╚════╝░░░░╚═╝░░░╚═╝░░╚═╝░░╚══╝
+            """;
+
     private ProviderBrowserGui providerBrowserGui;
 
     @Override
@@ -31,11 +40,16 @@ public final class AzDownPlugin extends JavaPlugin {
                 .setTabCompleter(browseCommand);
 
         getServer().getPluginManager().registerEvents(providerBrowserGui, this);
-        getLogger().info("AzDown enabled.");
+        logPluginState("enabled");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("AzDown disabled.");
+        logPluginState("disabled");
+    }
+
+    private void logPluginState(String state) {
+        LOGO.lines().forEach(getLogger()::info);
+        getLogger().info("AzDown " + state + ".");
     }
 }
