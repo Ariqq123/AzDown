@@ -1,10 +1,12 @@
 package dev.azdown.gui;
 
+import dev.azdown.config.PluginSettings;
 import dev.azdown.model.PluginListing;
 import dev.azdown.model.PluginProvider;
 import dev.azdown.service.PluginSearchService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,7 +19,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +26,12 @@ import java.util.List;
 public class ProviderBrowserGui implements Listener {
     private final Plugin plugin;
     private final PluginSearchService pluginSearchService;
+    private final PluginSettings settings;
 
-    public ProviderBrowserGui(Plugin plugin, PluginSearchService pluginSearchService) {
+    public ProviderBrowserGui(Plugin plugin, PluginSearchService pluginSearchService, PluginSettings settings) {
         this.plugin = plugin;
         this.pluginSearchService = pluginSearchService;
+        this.settings = settings;
     }
 
     public void openProviderMenu(Player player, String query) {
@@ -40,6 +43,7 @@ public class ProviderBrowserGui implements Listener {
         inventory.setItem(15, providerItem(PluginProvider.HANGAR, Material.DIAMOND));
 
         player.openInventory(inventory);
+        playClick(player);
     }
 
     @EventHandler
@@ -50,7 +54,7 @@ public class ProviderBrowserGui implements Listener {
 
         InventoryHolder holder = event.getInventory().getHolder();
         if (!(holder instanceof ProviderMenuHolder providerMenuHolder)) {
-            if (holder instanceof ResultsMenuHolder resultsMenuHolder) {
+            if (holder instanceof ResultsMenuHolder) {
                 event.setCancelled(true);
                 if (event.getCurrentItem() == null || event.getCurrentItem().getType().isAir()) {
                     return;
@@ -70,6 +74,7 @@ public class ProviderBrowserGui implements Listener {
                 String url = lastLine.replace("URL: ", "");
                 player.sendMessage(Component.text("Open this URL: ", NamedTextColor.YELLOW)
                         .append(Component.text(url, NamedTextColor.AQUA)));
+                playSuccess(player);
                 player.closeInventory();
             }
             return;
@@ -89,14 +94,17 @@ public class ProviderBrowserGui implements Listener {
         };
 
         if (provider == null) {
+            playError(player);
             return;
         }
 
+        playClick(player);
         player.sendMessage(Component.text("Searching " + provider.displayName() + "...", NamedTextColor.GRAY));
-        pluginSearchService.searchAsync(provider, providerMenuHolder.query(), 9)
+        pluginSearchService.searchAsync(provider, providerMenuHolder.query(), settings.searchLimit())
                 .whenComplete((results, throwable) -> Bukkit.getScheduler().runTask(plugin, () -> {
                     if (throwable != null) {
                         player.sendMessage(Component.text("Search failed: " + throwable.getMessage(), NamedTextColor.RED));
+                        playError(player);
                         return;
                     }
                     openResultsMenu(player, provider, providerMenuHolder.query(), results);
@@ -130,6 +138,11 @@ public class ProviderBrowserGui implements Listener {
 
         player.openInventory(inventory);
         player.sendMessage(Component.text("Showing results for: " + query, NamedTextColor.GRAY));
+        if (results.isEmpty()) {
+            playError(player);
+        } else {
+            playSuccess(player);
+        }
     }
 
     private ItemStack providerItem(PluginProvider provider, Material material) {
@@ -164,6 +177,25 @@ public class ProviderBrowserGui implements Listener {
         meta.lore(lore);
         stack.setItemMeta(meta);
         return stack;
+    }
+
+    private void playClick(Player player) {
+        playSound(player, settings.clickSound());
+    }
+
+    private void playSuccess(Player player) {
+        playSound(player, settings.successSound());
+    }
+
+    private void playError(Player player) {
+        playSound(player, settings.errorSound());
+    }
+
+    private void playSound(Player player, org.bukkit.Sound sound) {
+        if (!settings.soundsEnabled()) {
+            return;
+        }
+        player.playSound(player.getLocation(), sound, settings.volume(), settings.pitch());
     }
 
     private record ProviderMenuHolder(String query) implements InventoryHolder {

@@ -1,6 +1,7 @@
 package dev.azdown;
 
 import dev.azdown.command.BrowseCommand;
+import dev.azdown.config.PluginSettings;
 import dev.azdown.gui.ProviderBrowserGui;
 import dev.azdown.service.PluginSearchService;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,21 +20,19 @@ public final class AzDownPlugin extends JavaPlugin {
             ╚═╝░░╚═╝╚══════╝╚═════╝░░╚════╝░░░░╚═╝░░░╚═╝░░╚═╝░░╚══╝
             """;
 
-    private ProviderBrowserGui providerBrowserGui;
-
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        PluginSettings settings = PluginSettings.loadAndRepair(this);
 
         HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
 
         PluginSearchService searchService = new PluginSearchService(httpClient);
-        providerBrowserGui = new ProviderBrowserGui(this, searchService);
+        ProviderBrowserGui providerBrowserGui = new ProviderBrowserGui(this, searchService, settings);
 
-        String defaultQuery = getConfig().getString("default-query", "essentials");
-        BrowseCommand browseCommand = new BrowseCommand(providerBrowserGui, defaultQuery);
+        BrowseCommand browseCommand = new BrowseCommand(providerBrowserGui, settings.defaultQuery());
         Objects.requireNonNull(getCommand("azdown"), "azdown command missing in plugin.yml")
                 .setExecutor(browseCommand);
         Objects.requireNonNull(getCommand("azdown"), "azdown command missing in plugin.yml")
