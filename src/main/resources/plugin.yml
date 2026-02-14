@@ -1,0 +1,14 @@
+name: AzDown
+version: ${version}
+main: dev.azdown.AzDownPlugin
+api-version: '1.21'
+authors: [AzDown]
+description: Browse plugins from Modrinth, Spigot, and Hangar inside Minecraft.
+commands:
+  azdown:
+    description: Open the plugin browser GUI.
+    usage: /azdown [search query]
+    permission: azdown.use
+permissions:
+  azdown.use:
+    default: true
