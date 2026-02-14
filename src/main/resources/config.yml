@@ -1,0 +1,9 @@
+default-query: essentials
+search-limit: 9
+sounds:
+  enabled: true
+  click: UI_BUTTON_CLICK
+  success: ENTITY_EXPERIENCE_ORB_PICKUP
+  error: ENTITY_VILLAGER_NO
+  volume: 0.8
+  pitch: 1.0
