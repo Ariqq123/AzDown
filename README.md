@@ -20,7 +20,7 @@ AzDown is a modern Paper plugin that lets players browse plugin providers from a
 mvn package
 ```
 
-The plugin jar is generated in `build/libs/`.
+The plugin jar is generated in `target/`.
 
 ## Usage
 1. Install the jar into your server `plugins` folder.
@@ -30,6 +30,10 @@ The plugin jar is generated in `build/libs/`.
    /azdown essentials
    ```
 4. Click a provider and browse results.
+5. Reload config without restart (requires `azdown.admin.reload`):
+   ```
+   /azdown reload
+   ```
 
 
 ## Configuration

@@ -20,10 +20,12 @@ public final class AzDownPlugin extends JavaPlugin {
             ╚═╝░░╚═╝╚══════╝╚═════╝░░╚════╝░░░░╚═╝░░░╚═╝░░╚═╝░░╚══╝
             """;
 
+    private volatile PluginSettings settings;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        PluginSettings settings = PluginSettings.loadAndRepair(this);
+        settings = PluginSettings.loadAndRepair(this);
 
         HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
@@ -32,7 +34,7 @@ public final class AzDownPlugin extends JavaPlugin {
         PluginSearchService searchService = new PluginSearchService(httpClient);
         ProviderBrowserGui providerBrowserGui = new ProviderBrowserGui(this, searchService, settings);
 
-        BrowseCommand browseCommand = new BrowseCommand(providerBrowserGui, settings.defaultQuery());
+        BrowseCommand browseCommand = new BrowseCommand(this, providerBrowserGui);
         Objects.requireNonNull(getCommand("azdown"), "azdown command missing in plugin.yml")
                 .setExecutor(browseCommand);
         Objects.requireNonNull(getCommand("azdown"), "azdown command missing in plugin.yml")
@@ -40,6 +42,16 @@ public final class AzDownPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(providerBrowserGui, this);
         logPluginState("enabled");
+    }
+
+    public PluginSettings currentSettings() {
+        return settings;
+    }
+
+    public PluginSettings reloadPluginSettings() {
+        reloadConfig();
+        settings = PluginSettings.loadAndRepair(this);
+        return settings;
     }
 
     @Override

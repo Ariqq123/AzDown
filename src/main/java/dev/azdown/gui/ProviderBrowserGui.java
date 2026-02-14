@@ -9,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,11 +27,15 @@ import java.util.List;
 public class ProviderBrowserGui implements Listener {
     private final Plugin plugin;
     private final PluginSearchService pluginSearchService;
-    private final PluginSettings settings;
+    private volatile PluginSettings settings;
 
     public ProviderBrowserGui(Plugin plugin, PluginSearchService pluginSearchService, PluginSettings settings) {
         this.plugin = plugin;
         this.pluginSearchService = pluginSearchService;
+        this.settings = settings;
+    }
+
+    public void updateSettings(PluginSettings settings) {
         this.settings = settings;
     }
 
@@ -191,7 +196,7 @@ public class ProviderBrowserGui implements Listener {
         playSound(player, settings.errorSound());
     }
 
-    private void playSound(Player player, org.bukkit.Sound sound) {
+    private void playSound(Player player, Sound sound) {
         if (!settings.soundsEnabled()) {
             return;
         }
